@@ -13,7 +13,6 @@ public class CDR {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String callType;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     @ManyToOne(fetch = FetchType.LAZY)
