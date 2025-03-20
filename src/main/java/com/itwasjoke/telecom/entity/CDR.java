@@ -13,7 +13,9 @@ public class CDR {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @JoinColumn(name="start_time")
     private LocalDateTime startTime;
+    @JoinColumn(name="end_time")
     private LocalDateTime endTime;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="callerNumber", nullable=false)

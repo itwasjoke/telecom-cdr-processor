@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.Year;
 import java.util.List;
 import java.util.Random;
 
@@ -37,7 +39,10 @@ public class CdrServiceImpl implements CdrService {
         // получаем всех абонентов
         Random random = new Random();
         List<Caller> callers = callerService.generateCallers();
-        LocalDateTime startDate = LocalDateTime.now().minusYears(1);
+        LocalDateTime startDate = Year.now()
+                        .atMonth(Month.JANUARY)
+                        .atDay(1)
+                        .atStartOfDay();
         // добавляем до 10 записей на день
         for (int i = 0; i < 365; i++) {
             for (int j = 0; j < random.nextInt(5); j++) {
@@ -57,6 +62,32 @@ public class CdrServiceImpl implements CdrService {
             startDate = startDate.plusDays(1);
         }
         logger.info("All CDR records are generated correctly");
+    }
+
+    @Override
+    public Long getDurationOutgoingCalls(
+            Caller caller,
+            LocalDateTime date1,
+            LocalDateTime date2
+    ) {
+        return cdrRepository.findCDRByDatesOutgoing(
+                caller,
+                date1,
+                date2
+        );
+    }
+
+    @Override
+    public Long getDurationIncomingCalls(
+            Caller caller,
+            LocalDateTime date1,
+            LocalDateTime date2
+    ) {
+        return cdrRepository.findCDRByDatesIncoming(
+                caller,
+                date1,
+                date2
+        );
     }
 
     /**

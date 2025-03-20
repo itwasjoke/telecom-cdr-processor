@@ -1,12 +1,14 @@
 package com.itwasjoke.telecom.service.impl;
 
 import com.itwasjoke.telecom.entity.Caller;
+import com.itwasjoke.telecom.exception.NoCallerFoundException;
 import com.itwasjoke.telecom.repository.CallerRepository;
 import com.itwasjoke.telecom.service.CallerService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -15,11 +17,6 @@ public class CallerServiceImpl implements CallerService {
 
     public CallerServiceImpl(CallerRepository callerRepository) {
         this.callerRepository = callerRepository;
-    }
-
-    @Override
-    public List<Caller> getCallers() {
-        return callerRepository.findAll();
     }
 
     @Override
@@ -35,6 +32,24 @@ public class CallerServiceImpl implements CallerService {
             callers.add(callerRepository.save(caller));
         }
         return callers;
+    }
+
+    @Override
+    public Caller getCaller(String number) {
+        Optional<Caller> caller =
+                callerRepository.findCallerByMsisdn(number);
+        if (caller.isPresent()) {
+            return caller.get();
+        } else {
+            throw new NoCallerFoundException(
+                    "No caller found with number: " + number
+            );
+        }
+    }
+
+    @Override
+    public List<Caller> getCallers() {
+        return callerRepository.findAll();
     }
 
     /**
