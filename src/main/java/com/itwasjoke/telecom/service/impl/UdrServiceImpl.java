@@ -83,7 +83,7 @@ public class UdrServiceImpl implements UdrService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDateTime getDateStart(Integer month) {
+    public LocalDateTime getDateStart(Integer month) {
         LocalDateTime startDate;
 
         if (month == null) {
@@ -102,7 +102,7 @@ public class UdrServiceImpl implements UdrService {
         return startDate;
     }
 
-    private LocalDateTime getDateEnd(Integer month) {
+    public LocalDateTime getDateEnd(Integer month) {
         LocalDateTime endDate;
         if (month == null) {
             endDate = Year.now()
@@ -128,7 +128,7 @@ public class UdrServiceImpl implements UdrService {
         return endDate;
     }
 
-    private String getTimeText(Long secs){
+    public String getTimeText(Long secs){
         if (secs == null) {
             return "00:00:00";
         }

@@ -56,7 +56,7 @@ public class CallerServiceImpl implements CallerService {
      * Генерация номера телефона
      * @return строка из 11 чисел
      */
-    private String getMsisdn() {
+    public String getMsisdn() {
         return new Random()
                 .ints(11, 0, 10)
                 .collect(

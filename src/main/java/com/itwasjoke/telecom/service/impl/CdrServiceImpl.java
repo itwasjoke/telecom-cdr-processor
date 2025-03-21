@@ -96,7 +96,7 @@ public class CdrServiceImpl implements CdrService {
      * @param receiver принимающий
      * @param startTime дата старта дня
      */
-    private void createCdr(
+    public void createCdr(
             Caller caller,
             Caller receiver,
             LocalDateTime startTime
