@@ -16,6 +16,11 @@ import java.time.Year;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Сервис для работы с CDR данными
+ * Отвечает за генерацию CDR записей
+ * и предоставление информации о длительности звонков
+ */
 @Service
 public class CdrServiceImpl implements CdrService {
     private final CdrRepository cdrRepository;
@@ -30,9 +35,6 @@ public class CdrServiceImpl implements CdrService {
         this.callerService = callerService;
     }
 
-    /**
-     * Генерация записей CDR
-     */
     @Override
     @Transactional
     public void generateCDR() {
@@ -90,12 +92,6 @@ public class CdrServiceImpl implements CdrService {
         );
     }
 
-    /**
-     * Сохранение записи CDR
-     * @param caller звонящий
-     * @param receiver принимающий
-     * @param startTime дата старта дня
-     */
     public void createCdr(
             Caller caller,
             Caller receiver,

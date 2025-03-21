@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для генерации UDR отчетов на основе CDR данных
+ * UDR отчет содержит агрегированную информацию
+ * о входящих и исходящих звонках абонента за указанный месяц
+ */
 @Service
 public class UdrServiceImpl implements UdrService {
     private final CallerService callerService;

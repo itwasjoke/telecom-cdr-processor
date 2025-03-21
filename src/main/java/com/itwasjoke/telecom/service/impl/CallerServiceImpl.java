@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Сервис для работы с абонентами
+ * Отвечает за генерацию абонентов и предоставление информации о них
+ */
 @Service
 public class CallerServiceImpl implements CallerService {
     private final CallerRepository callerRepository;
@@ -52,10 +56,6 @@ public class CallerServiceImpl implements CallerService {
         return callerRepository.findAll();
     }
 
-    /**
-     * Генерация номера телефона
-     * @return строка из 11 чисел
-     */
     public String getMsisdn() {
         return new Random()
                 .ints(11, 0, 10)

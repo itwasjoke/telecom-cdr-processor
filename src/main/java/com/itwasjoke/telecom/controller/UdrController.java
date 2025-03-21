@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST API Контроллер, отвечающий за генерацию udr отчетов
+ */
 @RestController
 @RequestMapping("/udr")
 public class UdrController {
