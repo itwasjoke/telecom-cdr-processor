@@ -24,16 +24,19 @@ public class CallerServiceImpl implements CallerService {
     }
 
     /**
-     * Создание базы номеров абонентов
+     * Создание базы 30 номеров абонентов
      */
     @Override
     public List<Caller> generateCallers() {
         List<Caller> callers = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
+            // делаем проверку на существование номера
             String msisdn;
             do {
                msisdn = getMsisdn();
             } while (callerRepository.existsById(msisdn));
+
+            // сохраняем абонента
             Caller caller = new Caller();
             caller.setMsisdn(msisdn);
             callers.add(callerRepository.save(caller));

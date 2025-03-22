@@ -61,6 +61,7 @@ public class CdrServiceImpl implements CdrService {
                         .atMonth(Month.JANUARY)
                         .atDay(1)
                         .atStartOfDay();
+
         // добавляем до 10 записей на день
         for (int i = 0; i < 365; i++) {
             for (int j = 0; j < random.nextInt(5); j++) {
@@ -135,9 +136,12 @@ public class CdrServiceImpl implements CdrService {
             LocalDateTime dateStart,
             LocalDateTime dateEnd
     ) {
+        // проверяем валидность даты
         if (dateStart.isAfter(dateEnd)) {
             throw new IncorrectDateFormatException("Date start must be before date end");
         }
+
+        // получаем нужные данные
         UUID uuid = UUID.randomUUID();
         Caller caller = callerService.getCaller(number);
         List<CDR> cdrs = cdrRepository.findAllForReport(
@@ -146,6 +150,8 @@ public class CdrServiceImpl implements CdrService {
                 dateStart,
                 dateEnd
         );
+
+        // сохраняем в файл
         saveCdrToFile(cdrs, number, uuid);
         return uuid;
     }
@@ -185,18 +191,24 @@ public class CdrServiceImpl implements CdrService {
      * @param uuid идентификатор отчета
      */
     public void saveCdrToFile(List<CDR> cdrs, String number, UUID uuid) {
+        // получение доступа к папке
         Path path = openFolder();
         String fileName = number + "_" + uuid.toString() + ".txt";
         Path filePath = path.resolve(fileName);
+
+        // начало записи в файл
         try (
                 BufferedWriter writer = new BufferedWriter(
                         new FileWriter(filePath.toFile())
                 )
         ) {
+
+            // преобразование элементов в строки
             List<String> lines = cdrs.stream()
                     .map(cdr -> formatCdr(cdr, number))
                     .toList();
 
+            // запись
             for (String line : lines) {
                 writer.write(line);
                 writer.newLine();
@@ -230,6 +242,7 @@ public class CdrServiceImpl implements CdrService {
      * @return строка записи
      */
     public String formatCdr(CDR cdr, String number) {
+        // проверка на входящие/исходящие записи
         String prefix = number
                 .equals(
                         cdr.getCallerNumber().getMsisdn()

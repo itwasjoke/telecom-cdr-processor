@@ -42,6 +42,7 @@ public class UdrServiceImpl implements UdrService {
      */
     @Override
     public UDR getUdrFromCaller(String number, Integer month) {
+        // проверка валидации месяца
         if (month != null) {
             if (month < 1 || month > 12) {
                 throw new IncorrectMonthException("Incorrect month: " + month);
@@ -59,9 +60,11 @@ public class UdrServiceImpl implements UdrService {
      */
     @Override
     public UDR getUdrWithCaller(Caller caller, Integer month) {
+        // получение дат для диапазона исходя из номера месяца
         LocalDateTime startDate = getDateStart(month);
         LocalDateTime endDate = getDateEnd(month);
 
+        // получение длительности в наносекундах
         Long secsOutgoing = cdrService.getDurationOutgoingCalls(
                 caller,
                 startDate,
@@ -72,6 +75,8 @@ public class UdrServiceImpl implements UdrService {
                 startDate,
                 endDate
         );
+
+        // форматирование времени
         String formattedTimeOutgoing = getTimeText(secsOutgoing);
         String formattedTimeIncoming = getTimeText(secsIncoming);
 
@@ -88,6 +93,7 @@ public class UdrServiceImpl implements UdrService {
      */
     @Override
     public List<UDR> getUdrsFromCaller(Integer month) {
+        // валидация числа месяца
         if (month != null) {
             if (month < 1 || month > 12) {
                 throw new IncorrectMonthException("Incorrect month: " + month);
@@ -97,6 +103,7 @@ public class UdrServiceImpl implements UdrService {
         if (callers.isEmpty()) {
             return new ArrayList<>();
         }
+        // преобразование списка абонентов в UDR отчеты
         return callers
                 .stream()
                 .map(caller -> getUdrWithCaller(caller, month))
@@ -111,11 +118,13 @@ public class UdrServiceImpl implements UdrService {
         LocalDateTime startDate;
 
         if (month == null) {
+            // указание начала года при отсутствии месяца
             startDate = Year.now()
                     .atMonth(Month.JANUARY)
                     .atDay(1)
                     .atStartOfDay();
         } else {
+            // выбор начала месяца
             YearMonth yearMonth = YearMonth.of(
                     Year.now().getValue(), month
             );
@@ -133,6 +142,7 @@ public class UdrServiceImpl implements UdrService {
     public LocalDateTime getDateEnd(Integer month) {
         LocalDateTime endDate;
         if (month == null) {
+            // указание конца года при отсутствии даты
             endDate = Year.now()
                     .atMonth(Month.DECEMBER)
                     .atEndOfMonth()
@@ -142,6 +152,7 @@ public class UdrServiceImpl implements UdrService {
                             59
                     );
         } else {
+            // указание конца последнего дня нужного месяца
             YearMonth yearMonth = YearMonth.of(
                     Year.now().getValue(), month
             );
