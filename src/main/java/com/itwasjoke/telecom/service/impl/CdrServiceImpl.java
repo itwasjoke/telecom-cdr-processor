@@ -2,6 +2,8 @@ package com.itwasjoke.telecom.service.impl;
 
 import com.itwasjoke.telecom.entity.CDR;
 import com.itwasjoke.telecom.entity.Caller;
+import com.itwasjoke.telecom.exception.NoFolderFoundException;
+import com.itwasjoke.telecom.exception.WritingToFileException;
 import com.itwasjoke.telecom.repository.CdrRepository;
 import com.itwasjoke.telecom.service.CallerService;
 import com.itwasjoke.telecom.service.CdrService;
@@ -10,11 +12,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Сервис для работы с CDR данными
@@ -35,6 +47,9 @@ public class CdrServiceImpl implements CdrService {
         this.callerService = callerService;
     }
 
+    /**
+     * Генерация записей CDR, начиная с 1 января текущего года
+     */
     @Override
     @Transactional
     public void generateCDR() {
@@ -66,6 +81,13 @@ public class CdrServiceImpl implements CdrService {
         logger.info("All CDR records are generated correctly");
     }
 
+    /**
+     * Получение длительности исходящих звонков
+     * @param caller абонент
+     * @param date1 дата начала периода
+     * @param date2 дата конца периода
+     * @return наносекунды
+     */
     @Override
     public Long getDurationOutgoingCalls(
             Caller caller,
@@ -79,6 +101,13 @@ public class CdrServiceImpl implements CdrService {
         );
     }
 
+    /**
+     * Получение длительности входящих звонков
+     * @param caller абонент
+     * @param date1 дата начала периода
+     * @param date2 дата конца периода
+     * @return наносекунды
+     */
     @Override
     public Long getDurationIncomingCalls(
             Caller caller,
@@ -92,6 +121,37 @@ public class CdrServiceImpl implements CdrService {
         );
     }
 
+    /**
+     * Генерация отчета по записям CDR
+     * @param number номер абонента
+     * @param dateStart дата начала периода
+     * @param dateEnd дата конца периода
+     * @return идентификатор отчета
+     */
+    @Override
+    public UUID generateCdrReport(
+            String number,
+            LocalDateTime dateStart,
+            LocalDateTime dateEnd
+    ) {
+        UUID uuid = UUID.randomUUID();
+        Caller caller = callerService.getCaller(number);
+        List<CDR> cdrs = cdrRepository.findAllForReport(
+                caller,
+                caller,
+                dateStart,
+                dateEnd
+        );
+        saveCdrToFile(cdrs, number, uuid);
+        return uuid;
+    }
+
+    /**
+     * Создание записи CDR
+     * @param caller абонент, инициирующий звонок
+     * @param receiver абонент, принимающий звонок
+     * @param startTime дата начала звонка
+     */
     public void createCdr(
             Caller caller,
             Caller receiver,
@@ -112,5 +172,69 @@ public class CdrServiceImpl implements CdrService {
                 )
         );
         cdrRepository.save(cdr);
+    }
+
+    /**
+     * Сохранение отчета в файл
+     * @param cdrs список записей
+     * @param number номер текущего абонента
+     * @param uuid идентификатор отчета
+     */
+    public void saveCdrToFile(List<CDR> cdrs, String number, UUID uuid) {
+        Path path = openFolder();
+        String fileName = number + "_" + uuid.toString() + ".txt";
+        Path filePath = path.resolve(fileName);
+        try (
+                BufferedWriter writer = new BufferedWriter(
+                        new FileWriter(filePath.toFile())
+                )
+        ) {
+            List<String> lines = cdrs.stream()
+                    .map(cdr -> formatCdr(cdr, number))
+                    .toList();
+
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            throw new WritingToFileException("Error for write to file: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Открытие папки или ее создание
+     * @return путь к папке
+     */
+    private Path openFolder(){
+        Path reportsDir = Paths.get("reports");
+
+        if (!Files.exists(reportsDir)) {
+            try {
+                Files.createDirectories(reportsDir);
+            } catch (IOException e) {
+                throw new NoFolderFoundException("Cannot create folder: " + e.getMessage());
+            }
+        }
+        return reportsDir;
+    }
+
+    /**
+     * Форматирование записи CDR для отчета
+     * @param cdr объект отчета
+     * @param number номер абонента
+     * @return строка записи
+     */
+    private String formatCdr(CDR cdr, String number) {
+        String prefix = number
+                .equals(
+                        cdr.getCallerNumber().getMsisdn()
+                ) ? "01" : "02";
+
+        return prefix + ", " +
+                cdr.getCallerNumber().getMsisdn() + ", " +
+                cdr.getReceiverNumber().getMsisdn() + ", " +
+                cdr.getStartTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + ", " +
+                cdr.getEndTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
     }
 }

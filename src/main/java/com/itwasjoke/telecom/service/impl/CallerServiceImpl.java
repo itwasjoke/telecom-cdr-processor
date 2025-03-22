@@ -23,6 +23,9 @@ public class CallerServiceImpl implements CallerService {
         this.callerRepository = callerRepository;
     }
 
+    /**
+     * Создание базы номеров абонентов
+     */
     @Override
     public List<Caller> generateCallers() {
         List<Caller> callers = new ArrayList<>();
@@ -38,6 +41,10 @@ public class CallerServiceImpl implements CallerService {
         return callers;
     }
 
+    /**
+     * Получение абонента
+     * @param number номер абонента
+     */
     @Override
     public Caller getCaller(String number) {
         Optional<Caller> caller =
@@ -51,11 +58,18 @@ public class CallerServiceImpl implements CallerService {
         }
     }
 
+    /**
+     * Получение списка всех абонентов
+     */
     @Override
     public List<Caller> getCallers() {
         return callerRepository.findAll();
     }
 
+    /**
+     * Генерация номера
+     * @return строка из 11 чисел
+     */
     public String getMsisdn() {
         return new Random()
                 .ints(11, 0, 10)

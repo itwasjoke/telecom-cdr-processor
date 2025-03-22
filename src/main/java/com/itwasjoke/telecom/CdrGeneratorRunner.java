@@ -17,6 +17,9 @@ public class CdrGeneratorRunner implements CommandLineRunner {
         this.cdrService = cdrService;
     }
 
+    /**
+     * Генерация записей
+     */
     @Override
     public void run(String... args) {
         cdrService.generateCDR();

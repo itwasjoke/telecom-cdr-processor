@@ -35,6 +35,11 @@ public class UdrServiceImpl implements UdrService {
         this.cdrService = cdrService;
     }
 
+    /**
+     * Получение UDR отчета
+     * @param number номер абонента
+     * @param month запрашиваемый месяц
+     */
     @Override
     public UDR getUdrFromCaller(String number, Integer month) {
         if (month != null) {
@@ -46,6 +51,12 @@ public class UdrServiceImpl implements UdrService {
         return getUdrWithCaller(caller, month);
     }
 
+    /**
+     * Получение отчета UDR
+     * @param caller заранее найденный абонент
+     * @param month запрашиваемый месяц
+     * @return
+     */
     @Override
     public UDR getUdrWithCaller(Caller caller, Integer month) {
         LocalDateTime startDate = getDateStart(month);
@@ -71,6 +82,10 @@ public class UdrServiceImpl implements UdrService {
         );
     }
 
+    /**
+     * Получение UDR отчетов по всем абонентам
+     * @param month запрашиваемый месяц
+     */
     @Override
     public List<UDR> getUdrsFromCaller(Integer month) {
         if (month != null) {
@@ -88,6 +103,10 @@ public class UdrServiceImpl implements UdrService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Получение даты начала периода
+     * @param month по месяцу
+     */
     public LocalDateTime getDateStart(Integer month) {
         LocalDateTime startDate;
 
@@ -107,6 +126,10 @@ public class UdrServiceImpl implements UdrService {
         return startDate;
     }
 
+    /**
+     * Получение даты конца периода
+     * @param month по месяцу
+     */
     public LocalDateTime getDateEnd(Integer month) {
         LocalDateTime endDate;
         if (month == null) {
@@ -133,6 +156,11 @@ public class UdrServiceImpl implements UdrService {
         return endDate;
     }
 
+    /**
+     * Форматирование времени к текстовому формату
+     * @param secs наносекунды
+     * @return строка формата "hh:mm:ss"
+     */
     public String getTimeText(Long secs){
         if (secs == null) {
             return "00:00:00";

@@ -56,4 +56,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 request
         );
     }
+
+    @ExceptionHandler(value = {NoFolderFoundException.class})
+    public ResponseEntity<Object> handleFolderNotFoundException(
+            Exception e,
+            WebRequest request
+    ){
+        return handleException(
+                e,
+                new ExceptionMessage(404, "Нет папки для сохранения отчета"),
+                HttpStatus.NOT_FOUND,
+                request
+        );
+    }
+
+    @ExceptionHandler(value = {WritingToFileException.class})
+    public ResponseEntity<Object> handleWritingToFileException(
+            Exception e,
+            WebRequest request
+    ){
+        return handleException(
+                e,
+                new ExceptionMessage(500, "Ошибка при записи в файл"),
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                request
+        );
+    }
 }
