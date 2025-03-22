@@ -31,14 +31,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(value = {IncorrectMonthException.class})
+    @ExceptionHandler(value = {
+            IncorrectMonthException.class,
+            IncorrectDateFormatException.class
+    })
     public ResponseEntity<Object> handleIncorrectMonthException(
             Exception e,
             WebRequest request
     ) {
         return handleException(
                 e,
-                new ExceptionMessage(400, "Неправильный формат месяца"),
+                new ExceptionMessage(400, "Неправильный формат даты"),
                 HttpStatus.BAD_REQUEST,
                 request
         );

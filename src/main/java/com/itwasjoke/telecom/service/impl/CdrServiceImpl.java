@@ -2,6 +2,7 @@ package com.itwasjoke.telecom.service.impl;
 
 import com.itwasjoke.telecom.entity.CDR;
 import com.itwasjoke.telecom.entity.Caller;
+import com.itwasjoke.telecom.exception.IncorrectDateFormatException;
 import com.itwasjoke.telecom.exception.NoFolderFoundException;
 import com.itwasjoke.telecom.exception.WritingToFileException;
 import com.itwasjoke.telecom.repository.CdrRepository;
@@ -134,6 +135,9 @@ public class CdrServiceImpl implements CdrService {
             LocalDateTime dateStart,
             LocalDateTime dateEnd
     ) {
+        if (dateStart.isAfter(dateEnd)) {
+            throw new IncorrectDateFormatException("Date start must be before date end");
+        }
         UUID uuid = UUID.randomUUID();
         Caller caller = callerService.getCaller(number);
         List<CDR> cdrs = cdrRepository.findAllForReport(
@@ -206,7 +210,7 @@ public class CdrServiceImpl implements CdrService {
      * Открытие папки или ее создание
      * @return путь к папке
      */
-    private Path openFolder(){
+    public Path openFolder(){
         Path reportsDir = Paths.get("reports");
 
         if (!Files.exists(reportsDir)) {
@@ -225,7 +229,7 @@ public class CdrServiceImpl implements CdrService {
      * @param number номер абонента
      * @return строка записи
      */
-    private String formatCdr(CDR cdr, String number) {
+    public String formatCdr(CDR cdr, String number) {
         String prefix = number
                 .equals(
                         cdr.getCallerNumber().getMsisdn()
